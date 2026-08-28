@@ -23,6 +23,7 @@
   <nav class="tabs">
     <button class="tab-btn active" data-view="rotator">Link</button>
     <button class="tab-btn" data-view="manage">Manage</button>
+    <button class="tab-btn" data-view="sync">Sync</button>
   </nav>
 </header>
 
@@ -69,34 +70,6 @@
 
   <!-- MANAGE VIEW -->
   <section id="view-manage" class="view">
-    <div id="sync-panel" class="sync-panel">
-      <div class="sync-status-row">
-        <span id="sync-status-dot" class="status-dot sync-off"></span>
-        <span id="sync-status-text">Cloud sync</span>
-      </div>
-
-      <p id="sync-disabled-note" class="sync-hint hidden">
-        Cloud sync isn't configured for this deployment yet.
-      </p>
-
-      <div id="sync-setup">
-        <button id="sync-generate-btn" class="secondary-btn full-width">Start syncing (create code)</button>
-        <div class="sync-join-row">
-          <input id="sync-code-input" type="text" placeholder="Or paste a sync code from your other device">
-          <button id="sync-join-btn" class="secondary-btn">Connect</button>
-        </div>
-      </div>
-
-      <div id="sync-connected" class="hidden">
-        <p class="sync-hint">Enter this same code on your other device to link it:</p>
-        <div class="sync-code-row">
-          <code id="sync-code-display"></code>
-          <button id="sync-copy-btn" class="link-btn">Copy</button>
-        </div>
-        <button id="sync-disconnect-btn" class="danger-link">Disconnect this device</button>
-      </div>
-    </div>
-
     <form id="add-form" class="add-form">
       <input id="url-input" type="url" inputmode="url" placeholder="Paste OpenSea (or any) link…" required>
       <div class="add-form-row">
@@ -140,6 +113,41 @@
       </table>
     </div>
     <p id="no-results-hint" class="sync-hint hidden">No links match your filters.</p>
+  </section>
+
+  <!-- SYNC VIEW -->
+  <section id="view-sync" class="view">
+    <div id="sync-panel" class="sync-panel">
+      <div class="sync-status-row">
+        <span id="sync-status-dot" class="status-dot sync-off"></span>
+        <span id="sync-status-text">Cloud sync</span>
+      </div>
+
+      <p id="sync-disabled-note" class="sync-hint hidden">
+        Cloud sync isn't configured for this deployment yet.
+      </p>
+
+      <div id="sync-setup">
+        <p class="sync-hint">
+          Connect this device to another one (like your phone or laptop) so
+          links you add on either show up on both.
+        </p>
+        <button id="sync-generate-btn" class="secondary-btn full-width">Start syncing (create code)</button>
+        <div class="sync-join-row">
+          <input id="sync-code-input" type="text" placeholder="Or paste a sync code from your other device">
+          <button id="sync-join-btn" class="secondary-btn">Connect</button>
+        </div>
+      </div>
+
+      <div id="sync-connected" class="hidden">
+        <p class="sync-hint">Enter this same code on your other device to link it:</p>
+        <div class="sync-code-row">
+          <code id="sync-code-display"></code>
+          <button id="sync-copy-btn" class="link-btn">Copy</button>
+        </div>
+        <button id="sync-disconnect-btn" class="danger-link">Disconnect this device</button>
+      </div>
+    </div>
   </section>
 </main>
 

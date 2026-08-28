@@ -20,9 +20,11 @@ small in-app preview, so you don't have to dig back through OpenSea each time.
   when saving a link (both optional); the Artist field autocompletes from
   names you've already used. Filter the table by search text, artist, or
   status.
-- **Cloud sync (optional)** — connect your computer and your iPhone with a
-  shared sync code so a link added on one shows up on the other. Off by
-  default; everything stays local-only (`localStorage`) until you turn it on.
+- **Sync tab (optional)** — its own tab, separate from Manage, since you'd
+  normally only touch it once per device. Connect your computer and your
+  iPhone with a shared sync code so a link added on one shows up on the
+  other. Off by default; everything stays local-only (`localStorage`) until
+  you turn it on.
 
 ## Deploying it so you can install it on your iPhone
 
@@ -101,14 +103,14 @@ your data, your own free Google-backed project, no cost.
 6. Click **Publish** on the rules.
 7. Send me (Claude) the `firebaseConfig` values from step 3 and I'll paste
    them into `firebase-config.js` and push the update — after that, cloud
-   sync will be available in the app's Manage tab.
+   sync will be available in the app's **Sync** tab.
 
 ### Using it day to day
 
-1. On your **first** device (say, your computer), open the app's Manage tab
+1. On your **first** device (say, your computer), open the app's Sync tab
    and tap **Start syncing (create code)**. It generates a sync code and
    uploads your current link list to the cloud under that code.
-2. Copy the sync code shown, open the app on your **iPhone**, go to Manage,
+2. Copy the sync code shown, open the app on your **iPhone**, go to Sync,
    paste the code into "Or paste a sync code from your other device", and
    tap **Connect**. (If the phone already had its own local links, you'll be
    asked to confirm since they'll be replaced by the synced list.)
@@ -117,5 +119,5 @@ your data, your own free Google-backed project, no cost.
    link every time you open it — that "seen" state is shared too, so you
    won't get a repeat just because you last saw it on the other device.
 
-You can disconnect a device at any time from the Manage tab ("Disconnect
+You can disconnect a device at any time from the Sync tab ("Disconnect
 this device") — its local list stays as it was, it just stops syncing.
