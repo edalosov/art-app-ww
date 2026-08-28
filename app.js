@@ -87,6 +87,7 @@ function addLink(url, title, artist) {
   };
   state.links.push(entry);
   state.queue.push(entry.id); // included in the current cycle
+  state.queue = shuffle(state.queue); // otherwise newly-added links line up in the order you added them
   saveState();
   return entry;
 }
@@ -211,6 +212,10 @@ const els = {
   clearAllBtn: document.getElementById('clear-all-btn'),
   linkTableBody: document.getElementById('link-table-body'),
   noResultsHint: document.getElementById('no-results-hint'),
+  pagination: document.getElementById('pagination'),
+  pageInfo: document.getElementById('page-info'),
+  pagePrevBtn: document.getElementById('page-prev-btn'),
+  pageNextBtn: document.getElementById('page-next-btn'),
   syncPanel: document.getElementById('sync-panel'),
   syncStatusDot: document.getElementById('sync-status-dot'),
   syncStatusText: document.getElementById('sync-status-text'),
@@ -270,7 +275,7 @@ function renderRotator() {
   if (!link) return;
 
   const shownCount = state.links.length - state.queue.length;
-  els.progressLabel.textContent = `Cycle ${state.cycleNumber} · ${shownCount} of ${state.links.length} shown`;
+  els.progressLabel.textContent = `${shownCount} of ${state.links.length} shown`;
   els.resetCycleBtn.classList.toggle('hidden', state.links.length < 2);
 
   els.currentTitle.textContent = displayName(link);
@@ -386,6 +391,9 @@ function matchesFilters(link) {
   return true;
 }
 
+const PAGE_SIZE = 10;
+let managePage = 0;
+
 function renderManageList() {
   refreshArtistOptions();
 
@@ -401,8 +409,17 @@ function renderManageList() {
 
   els.noResultsHint.classList.toggle('hidden', !(state.links.length > 0 && visible.length === 0));
 
+  const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  managePage = Math.min(Math.max(managePage, 0), totalPages - 1);
+  const pageItems = visible.slice(managePage * PAGE_SIZE, managePage * PAGE_SIZE + PAGE_SIZE);
+
+  els.pagination.classList.toggle('hidden', totalPages <= 1);
+  els.pageInfo.textContent = `Page ${managePage + 1} of ${totalPages}`;
+  els.pagePrevBtn.disabled = managePage === 0;
+  els.pageNextBtn.disabled = managePage >= totalPages - 1;
+
   els.linkTableBody.innerHTML = '';
-  visible.forEach((link) => {
+  pageItems.forEach((link) => {
     const tr = document.createElement('tr');
 
     const thumbTd = document.createElement('td');
@@ -481,8 +498,22 @@ els.addForm.addEventListener('submit', (e) => {
 });
 
 [els.filterSearch, els.filterArtist, els.filterStatus].forEach((el) => {
-  el.addEventListener('input', renderManageList);
-  el.addEventListener('change', renderManageList);
+  const handler = () => {
+    managePage = 0;
+    renderManageList();
+  };
+  el.addEventListener('input', handler);
+  el.addEventListener('change', handler);
+});
+
+els.pagePrevBtn.addEventListener('click', () => {
+  managePage -= 1;
+  renderManageList();
+});
+
+els.pageNextBtn.addEventListener('click', () => {
+  managePage += 1;
+  renderManageList();
 });
 
 els.clearAllBtn.addEventListener('click', () => {
