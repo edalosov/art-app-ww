@@ -67,6 +67,34 @@
 
   <!-- MANAGE VIEW -->
   <section id="view-manage" class="view">
+    <div id="sync-panel" class="sync-panel">
+      <div class="sync-status-row">
+        <span id="sync-status-dot" class="status-dot sync-off"></span>
+        <span id="sync-status-text">Cloud sync</span>
+      </div>
+
+      <p id="sync-disabled-note" class="sync-hint hidden">
+        Cloud sync isn't configured for this deployment yet.
+      </p>
+
+      <div id="sync-setup">
+        <button id="sync-generate-btn" class="secondary-btn full-width">Start syncing (create code)</button>
+        <div class="sync-join-row">
+          <input id="sync-code-input" type="text" placeholder="Or paste a sync code from your other device">
+          <button id="sync-join-btn" class="secondary-btn">Connect</button>
+        </div>
+      </div>
+
+      <div id="sync-connected" class="hidden">
+        <p class="sync-hint">Enter this same code on your other device to link it:</p>
+        <div class="sync-code-row">
+          <code id="sync-code-display"></code>
+          <button id="sync-copy-btn" class="link-btn">Copy</button>
+        </div>
+        <button id="sync-disconnect-btn" class="danger-link">Disconnect this device</button>
+      </div>
+    </div>
+
     <form id="add-form" class="add-form">
       <input id="url-input" type="url" inputmode="url" placeholder="Paste OpenSea (or any) link…" required>
       <input id="title-input" type="text" placeholder="Label (optional)">
@@ -82,6 +110,6 @@
   </section>
 </main>
 
-<script src="app.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>

@@ -224,6 +224,78 @@ main {
   margin: 8px 4px 0;
 }
 
+/* Sync panel */
+.sync-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+
+.sync-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.status-dot.sync-off { background: var(--muted); }
+.status-dot.sync-connecting { background: #eab308; }
+.status-dot.sync-connected { background: #22c55e; }
+.status-dot.sync-error { background: var(--danger); }
+
+.sync-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+
+.full-width { width: 100%; }
+
+.sync-join-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.sync-join-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card-2);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.sync-join-row button {
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.sync-code-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.sync-code-row code {
+  font-size: 13px;
+  word-break: break-all;
+  color: var(--text);
+}
+
 /* Manage view */
 .add-form {
   display: flex;
