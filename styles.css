@@ -435,8 +435,11 @@ main {
 
 .thumb {
   width: 144px;
-  height: 144px;
-  border-radius: 10px;
+  /* Preview images are usually landscape (OpenSea's are ~1200x630), so shape
+     the box to match instead of a square with big empty bars top/bottom. */
+  aspect-ratio: 1200 / 630;
+  height: auto;
+  border-radius: 8px;
   object-fit: contain;
   background: var(--card-2);
   display: block;
