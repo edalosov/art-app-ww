@@ -15,10 +15,11 @@ small in-app preview, so you don't have to dig back through OpenSea each time.
   serverless function so it works even for sites like OpenSea that block
   being shown directly in an iframe. Falls back to an iframe, then an
   "Open ↗" button, if a site has no preview image.
-- **Manage tab** — a sortable table of every saved link with its Title,
-  Artist, and shown/new status. Add a Title and Artist when saving a link
-  (both optional); the Artist field autocompletes from names you've already
-  used. Filter the table by search text, artist, or status.
+- **Manage tab** — a sortable table of every saved link with a small
+  thumbnail, its Title, Artist, and shown/new status. Add a Title and Artist
+  when saving a link (both optional); the Artist field autocompletes from
+  names you've already used. Filter the table by search text, artist, or
+  status.
 - **Cloud sync (optional)** — connect your computer and your iPhone with a
   shared sync code so a link added on one shows up on the other. Off by
   default; everything stays local-only (`localStorage`) until you turn it on.

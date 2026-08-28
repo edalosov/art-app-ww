@@ -319,6 +319,32 @@ function loadPreview(link) {
     .catch(showIframe);
 }
 
+// Shared with loadPreview's underlying data: url -> image URL, or null if none.
+// Keeps the Manage table from re-fetching every thumbnail on every re-render
+// (e.g. each time a filter changes).
+const thumbnailCache = new Map();
+
+function loadThumbnail(link, imgEl) {
+  if (thumbnailCache.has(link.url)) {
+    const cached = thumbnailCache.get(link.url);
+    if (cached) imgEl.src = cached;
+    else imgEl.classList.add('thumb-empty');
+    return;
+  }
+  fetch('/api/preview?url=' + encodeURIComponent(link.url))
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data) => {
+      const image = (data && data.image) || null;
+      thumbnailCache.set(link.url, image);
+      if (image) imgEl.src = image;
+      else imgEl.classList.add('thumb-empty');
+    })
+    .catch(() => {
+      thumbnailCache.set(link.url, null);
+      imgEl.classList.add('thumb-empty');
+    });
+}
+
 function uniqueArtists() {
   const set = new Set(state.links.map((l) => (l.artist || '').trim()).filter(Boolean));
   return Array.from(set).sort((a, b) => a.localeCompare(b));
@@ -379,6 +405,15 @@ function renderManageList() {
   visible.forEach((link) => {
     const tr = document.createElement('tr');
 
+    const thumbTd = document.createElement('td');
+    thumbTd.className = 'col-thumb';
+    const thumbImg = document.createElement('img');
+    thumbImg.className = 'thumb';
+    thumbImg.alt = '';
+    thumbImg.loading = 'lazy';
+    thumbTd.appendChild(thumbImg);
+    loadThumbnail(link, thumbImg);
+
     const titleTd = document.createElement('td');
     titleTd.className = 'col-title';
     titleTd.textContent = link.title || '—';
@@ -416,7 +451,7 @@ function renderManageList() {
     });
     actionsTd.appendChild(removeBtn);
 
-    tr.append(titleTd, artistTd, statusTd, linkTd, actionsTd);
+    tr.append(thumbTd, titleTd, artistTd, statusTd, linkTd, actionsTd);
     els.linkTableBody.appendChild(tr);
   });
 }

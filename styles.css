@@ -388,7 +388,7 @@ main {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  min-width: 480px;
+  min-width: 530px;
 }
 
 .link-table th {
@@ -413,6 +413,26 @@ main {
 
 .link-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.link-table .col-thumb {
+  width: 40px;
+  padding-left: 12px;
+  padding-right: 6px;
+}
+
+.thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--card-2);
+  display: block;
+}
+
+.thumb.thumb-empty {
+  background: var(--card-2) url("icons/icon-192.png") center/60% no-repeat;
+  opacity: 0.5;
 }
 
 .link-table .col-title {
