@@ -240,6 +240,12 @@ function renderRotator() {
   els.emptyState.classList.add('hidden');
   els.rotatorContent.classList.remove('hidden');
 
+  // Links exist but nothing is picked yet (e.g. state just arrived from a cloud
+  // sync that never had a "current" link on this device) — pick one now instead
+  // of leaving the screen stuck on nothing.
+  if (!findLink(state.currentId)) {
+    pickNextLink();
+  }
   const link = findLink(state.currentId);
   if (!link) return;
 
