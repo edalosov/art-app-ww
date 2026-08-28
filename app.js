@@ -111,7 +111,10 @@ function clearAllLinks() {
 
 // ---------- cloud sync ----------
 
-let cloudReady = !sync.isCloudEnabled(); // if cloud isn't configured, there's nothing to wait for
+// Only worth waiting on the cloud if this device already has a sync code to
+// resolve — a device that hasn't set up sync yet (or isn't cloud-enabled at
+// all) has nothing incoming, so it should behave exactly like local-only mode.
+let cloudReady = !(sync.isCloudEnabled() && sync.getStoredSyncCode());
 let applyingRemoteUpdate = false;
 let hasAutoPicked = false;
 
@@ -160,11 +163,19 @@ async function startSync(code) {
       (err) => {
         console.error('Sync error', err);
         setSyncStatus('error', 'Sync error — check your connection');
+        // Don't leave the app stuck waiting on a cloud that isn't answering —
+        // fall back to whatever's already cached on this device.
+        cloudReady = true;
+        renderAll();
+        maybeAutoPick();
       }
     );
   } catch (e) {
     console.error('Failed to start sync', e);
     setSyncStatus('error', 'Could not connect');
+    cloudReady = true;
+    renderAll();
+    maybeAutoPick();
   }
 }
 
@@ -185,6 +196,7 @@ const els = {
   copiedToast: document.getElementById('copied-toast'),
   openExternal: document.getElementById('open-external'),
   previewFrame: document.getElementById('preview-frame'),
+  previewImage: document.getElementById('preview-image'),
   addForm: document.getElementById('add-form'),
   urlInput: document.getElementById('url-input'),
   titleInput: document.getElementById('title-input'),
@@ -256,7 +268,45 @@ function renderRotator() {
   els.currentTitle.textContent = displayName(link);
   els.currentUrl.textContent = link.url;
   els.openExternal.href = link.url;
-  els.previewFrame.src = link.url;
+  loadPreview(link);
+}
+
+let lastPreviewLinkId = null;
+let previewRequestId = 0;
+
+// Sites like OpenSea block being shown inside an <iframe> (X-Frame-Options), so
+// try fetching the page's own preview image (og:image) through our serverless
+// proxy first — the same trick Slack/Twitter "link unfurling" uses — and only
+// fall back to an iframe if that comes back empty.
+function loadPreview(link) {
+  if (lastPreviewLinkId === link.id) return;
+  lastPreviewLinkId = link.id;
+  const requestId = ++previewRequestId;
+
+  els.previewImage.classList.add('hidden');
+  els.previewImage.removeAttribute('src');
+  els.previewFrame.classList.add('hidden');
+  els.previewFrame.src = 'about:blank';
+
+  const showIframe = () => {
+    if (requestId !== previewRequestId) return;
+    els.previewFrame.src = link.url;
+    els.previewFrame.classList.remove('hidden');
+  };
+
+  fetch('/api/preview?url=' + encodeURIComponent(link.url))
+    .then((res) => (res.ok ? res.json() : null))
+    .then((data) => {
+      if (requestId !== previewRequestId) return; // a newer link was picked meanwhile
+      if (data && data.image) {
+        els.previewImage.onerror = showIframe;
+        els.previewImage.src = data.image;
+        els.previewImage.classList.remove('hidden');
+      } else {
+        showIframe();
+      }
+    })
+    .catch(showIframe);
 }
 
 function renderManageList() {

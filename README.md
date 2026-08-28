@@ -10,8 +10,11 @@ small in-app preview, so you don't have to dig back through OpenSea each time.
   automatically (you can also force a reshuffle with "Reset cycle").
 - **One-tap copy** — the "Copy link" button puts the URL straight on your
   clipboard, ready to paste into the frame app.
-- **In-app preview** — a small embedded preview of the current link, with an
-  "Open ↗" fallback for sites that block being shown in an iframe.
+- **In-app preview** — shows the link's own preview image (the same one
+  Slack/Twitter/iMessage use for "link unfurling"), fetched through a small
+  serverless function so it works even for sites like OpenSea that block
+  being shown directly in an iframe. Falls back to an iframe, then an
+  "Open ↗" button, if a site has no preview image.
 - **Manage tab** — add/remove links, see which ones have already been shown.
 - **Cloud sync (optional)** — connect your computer and your iPhone with a
   shared sync code so a link added on one shows up on the other. Off by
@@ -19,14 +22,13 @@ small in-app preview, so you don't have to dig back through OpenSea each time.
 
 ## Deploying it so you can install it on your iPhone
 
-This is a static site (plain HTML/CSS/JS, no build step), so the easiest way
-to get an `https://` URL you can install from is GitHub Pages:
-
-1. Push this branch (or merge it into your default branch).
-2. In the repo: **Settings → Pages → Build and deployment → Source** = "Deploy
-   from a branch", pick the branch and `/ (root)` folder, save.
-3. Wait a minute for GitHub to publish it, then open the given
-   `https://<user>.github.io/<repo>/` URL on your iPhone in Safari.
+This is mostly a static site (plain HTML/CSS/JS, no build step) plus one
+small serverless function (`api/preview.js`) that powers the in-app preview
+image. **Vercel** picks both up automatically with zero configuration — just
+connect the GitHub repo in the Vercel dashboard and it deploys on every
+push. (Plain GitHub Pages also works for everything except the preview
+image, since it only serves static files and can't run `api/preview.js` —
+previews would fall back to the plain iframe/`Open ↗` behavior there.)
 
 ## Installing on iPhone
 
@@ -46,8 +48,8 @@ to get an `https://` URL you can install from is GitHub Pages:
    link (until the whole list has cycled through, then it reshuffles and
    starts again).
 
-Note: some sites (OpenSea included, depending on the page) block being shown
-inside another app's preview frame for security reasons. When that happens
+Note: the preview normally shows the link's own preview image (see below).
+On the rare page that has neither a preview image nor allows being framed,
 the preview area will look blank — just tap **Open ↗** to view the link in a
 full browser tab instead; copying still works normally either way.
 
