@@ -388,7 +388,7 @@ main {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  min-width: 530px;
+  min-width: 640px;
 }
 
 .link-table th {
@@ -416,22 +416,22 @@ main {
 }
 
 .link-table .col-thumb {
-  width: 40px;
+  width: 144px;
   padding-left: 12px;
   padding-right: 6px;
 }
 
 .thumb {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 144px;
+  height: 144px;
+  border-radius: 10px;
   object-fit: contain;
   background: var(--card-2);
   display: block;
 }
 
 .thumb.thumb-empty {
-  background: var(--card-2) url("icons/icon-192.png") center/60% no-repeat;
+  background: var(--card-2) url("icons/icon-192.png") center/40% no-repeat;
   opacity: 0.5;
 }
 
