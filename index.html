@@ -43,6 +43,7 @@
 
       <div class="link-card">
         <p id="current-title" class="link-title"></p>
+        <p id="current-artist" class="link-artist hidden"></p>
         <p id="current-url" class="link-url"></p>
       </div>
 
@@ -98,16 +99,46 @@
 
     <form id="add-form" class="add-form">
       <input id="url-input" type="url" inputmode="url" placeholder="Paste OpenSea (or any) link…" required>
-      <input id="title-input" type="text" placeholder="Label (optional)">
+      <div class="add-form-row">
+        <input id="title-input" type="text" placeholder="Title (optional)">
+        <input id="artist-input" type="text" placeholder="Artist (optional)" list="artist-datalist" autocomplete="off">
+        <datalist id="artist-datalist"></datalist>
+      </div>
       <button type="submit" class="primary-btn">Add link</button>
     </form>
+
+    <div class="filter-row">
+      <input id="filter-search" type="search" placeholder="Search title, artist, link…">
+      <select id="filter-artist">
+        <option value="">All artists</option>
+      </select>
+      <select id="filter-status">
+        <option value="">All statuses</option>
+        <option value="new">Not shown yet</option>
+        <option value="shown">Already shown</option>
+      </select>
+    </div>
 
     <div class="manage-toolbar">
       <span id="count-label"></span>
       <button id="clear-all-btn" class="danger-link hidden">Delete all</button>
     </div>
 
-    <ul id="link-list" class="link-list"></ul>
+    <div class="table-scroll">
+      <table id="link-table" class="link-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Artist</th>
+            <th>Status</th>
+            <th>Link</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="link-table-body"></tbody>
+      </table>
+    </div>
+    <p id="no-results-hint" class="sync-hint hidden">No links match your filters.</p>
   </section>
 </main>
 

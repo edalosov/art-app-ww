@@ -76,11 +76,12 @@ function pickNextLink() {
   saveState();
 }
 
-function addLink(url, title) {
+function addLink(url, title, artist) {
   const entry = {
     id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)),
     url: url.trim(),
     title: (title || '').trim(),
+    artist: (artist || '').trim(),
     addedAt: Date.now(),
     everShown: false,
   };
@@ -190,6 +191,7 @@ const els = {
   progressLabel: document.getElementById('progress-label'),
   resetCycleBtn: document.getElementById('reset-cycle-btn'),
   currentTitle: document.getElementById('current-title'),
+  currentArtist: document.getElementById('current-artist'),
   currentUrl: document.getElementById('current-url'),
   copyBtn: document.getElementById('copy-btn'),
   nextBtn: document.getElementById('next-btn'),
@@ -200,9 +202,15 @@ const els = {
   addForm: document.getElementById('add-form'),
   urlInput: document.getElementById('url-input'),
   titleInput: document.getElementById('title-input'),
+  artistInput: document.getElementById('artist-input'),
+  artistDatalist: document.getElementById('artist-datalist'),
+  filterSearch: document.getElementById('filter-search'),
+  filterArtist: document.getElementById('filter-artist'),
+  filterStatus: document.getElementById('filter-status'),
   countLabel: document.getElementById('count-label'),
   clearAllBtn: document.getElementById('clear-all-btn'),
-  linkList: document.getElementById('link-list'),
+  linkTableBody: document.getElementById('link-table-body'),
+  noResultsHint: document.getElementById('no-results-hint'),
   syncPanel: document.getElementById('sync-panel'),
   syncStatusDot: document.getElementById('sync-status-dot'),
   syncStatusText: document.getElementById('sync-status-text'),
@@ -266,6 +274,8 @@ function renderRotator() {
   els.resetCycleBtn.classList.toggle('hidden', state.links.length < 2);
 
   els.currentTitle.textContent = displayName(link);
+  els.currentArtist.textContent = link.artist || '';
+  els.currentArtist.classList.toggle('hidden', !link.artist);
   els.currentUrl.textContent = link.url;
   els.openExternal.href = link.url;
   loadPreview(link);
@@ -309,31 +319,93 @@ function loadPreview(link) {
     .catch(showIframe);
 }
 
+function uniqueArtists() {
+  const set = new Set(state.links.map((l) => (l.artist || '').trim()).filter(Boolean));
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function refreshArtistOptions() {
+  const artists = uniqueArtists();
+
+  // The "add link" autocomplete list — every artist you've used before.
+  els.artistDatalist.innerHTML = artists.map((a) => `<option value="${escapeHtml(a)}"></option>`).join('');
+
+  // The filter dropdown — keep whatever the user has selected, even if it
+  // briefly doesn't match any current link (e.g. while they're deleting).
+  const previousValue = els.filterArtist.value;
+  els.filterArtist.innerHTML =
+    '<option value="">All artists</option>' + artists.map((a) => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
+  if (artists.includes(previousValue)) els.filterArtist.value = previousValue;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function matchesFilters(link) {
+  const status = els.filterStatus.value;
+  if (status === 'shown' && !link.everShown) return false;
+  if (status === 'new' && link.everShown) return false;
+
+  const artist = els.filterArtist.value;
+  if (artist && (link.artist || '') !== artist) return false;
+
+  const search = els.filterSearch.value.trim().toLowerCase();
+  if (search) {
+    const haystack = `${link.title} ${link.artist} ${link.url}`.toLowerCase();
+    if (!haystack.includes(search)) return false;
+  }
+  return true;
+}
+
 function renderManageList() {
-  els.countLabel.textContent = state.links.length
-    ? `${state.links.length} link${state.links.length === 1 ? '' : 's'} saved`
-    : 'No links saved yet';
+  refreshArtistOptions();
+
   els.clearAllBtn.classList.toggle('hidden', state.links.length === 0);
 
-  els.linkList.innerHTML = '';
-  state.links.forEach((link) => {
-    const li = document.createElement('li');
-    li.className = 'link-item' + (link.everShown ? ' seen' : '');
+  const visible = state.links.filter(matchesFilters);
 
-    const dot = document.createElement('span');
-    dot.className = 'status-dot';
-    dot.title = link.everShown ? 'Already shown' : 'Not shown yet';
+  els.countLabel.textContent = state.links.length === 0
+    ? 'No links saved yet'
+    : visible.length === state.links.length
+      ? `${state.links.length} link${state.links.length === 1 ? '' : 's'} saved`
+      : `Showing ${visible.length} of ${state.links.length} links`;
 
-    const info = document.createElement('div');
-    info.className = 'info';
-    const title = document.createElement('div');
-    title.className = 'title';
-    title.textContent = displayName(link);
-    const url = document.createElement('div');
-    url.className = 'url';
-    url.textContent = link.url;
-    info.append(title, url);
+  els.noResultsHint.classList.toggle('hidden', !(state.links.length > 0 && visible.length === 0));
 
+  els.linkTableBody.innerHTML = '';
+  visible.forEach((link) => {
+    const tr = document.createElement('tr');
+
+    const titleTd = document.createElement('td');
+    titleTd.className = 'col-title';
+    titleTd.textContent = link.title || '—';
+    titleTd.title = link.title || '';
+
+    const artistTd = document.createElement('td');
+    artistTd.className = 'col-artist';
+    artistTd.textContent = link.artist || '—';
+    artistTd.title = link.artist || '';
+
+    const statusTd = document.createElement('td');
+    const badge = document.createElement('span');
+    badge.className = 'status-badge ' + (link.everShown ? 'shown' : 'new');
+    badge.textContent = link.everShown ? 'Shown' : 'New';
+    statusTd.appendChild(badge);
+
+    const linkTd = document.createElement('td');
+    linkTd.className = 'col-link';
+    const a = document.createElement('a');
+    a.href = link.url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = 'Open ↗';
+    a.title = link.url;
+    linkTd.appendChild(a);
+
+    const actionsTd = document.createElement('td');
     const removeBtn = document.createElement('button');
     removeBtn.className = 'remove-btn';
     removeBtn.textContent = '✕';
@@ -342,9 +414,10 @@ function renderManageList() {
       removeLink(link.id);
       renderAll();
     });
+    actionsTd.appendChild(removeBtn);
 
-    li.append(dot, info, removeBtn);
-    els.linkList.appendChild(li);
+    tr.append(titleTd, artistTd, statusTd, linkTd, actionsTd);
+    els.linkTableBody.appendChild(tr);
   });
 }
 
@@ -364,11 +437,17 @@ els.addForm.addEventListener('submit', (e) => {
     return;
   }
   const wasEmpty = state.links.length === 0;
-  addLink(url, els.titleInput.value);
+  addLink(url, els.titleInput.value, els.artistInput.value);
   els.urlInput.value = '';
   els.titleInput.value = '';
+  els.artistInput.value = '';
   if (wasEmpty) pickNextLink();
   renderAll();
+});
+
+[els.filterSearch, els.filterArtist, els.filterStatus].forEach((el) => {
+  el.addEventListener('input', renderManageList);
+  el.addEventListener('change', renderManageList);
 });
 
 els.clearAllBtn.addEventListener('click', () => {
