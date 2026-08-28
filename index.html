@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Art Link Rotator</title>
+
+<!-- PWA / iOS home screen support -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Art Links">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <h1>Art Link Rotator</h1>
+  <nav class="tabs">
+    <button class="tab-btn active" data-view="rotator">Link</button>
+    <button class="tab-btn" data-view="manage">Manage</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ROTATOR VIEW -->
+  <section id="view-rotator" class="view active">
+
+    <div id="empty-state" class="empty-state hidden">
+      <p>You don't have any links saved yet.</p>
+      <button class="primary-btn" id="go-manage-btn">Add your first link</button>
+    </div>
+
+    <div id="rotator-content" class="hidden">
+      <div class="progress-row">
+        <span id="progress-label"></span>
+        <button id="reset-cycle-btn" class="link-btn hidden" title="Start a fresh cycle">Reset cycle</button>
+      </div>
+
+      <div class="link-card">
+        <p id="current-title" class="link-title"></p>
+        <p id="current-url" class="link-url"></p>
+      </div>
+
+      <div class="actions">
+        <button id="copy-btn" class="primary-btn">Copy link</button>
+        <button id="next-btn" class="secondary-btn">Skip / Next</button>
+      </div>
+      <p id="copied-toast" class="toast hidden">Copied!</p>
+
+      <div class="preview-wrap">
+        <div class="preview-header">
+          <span>Preview</span>
+          <a id="open-external" href="#" target="_blank" rel="noopener noreferrer">Open ↗</a>
+        </div>
+        <div id="preview-box" class="preview-box">
+          <iframe id="preview-frame" title="Link preview" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+        <p class="preview-hint">Some sites block in-app previews — tap "Open ↗" above if this looks blank.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANAGE VIEW -->
+  <section id="view-manage" class="view">
+    <form id="add-form" class="add-form">
+      <input id="url-input" type="url" inputmode="url" placeholder="Paste OpenSea (or any) link…" required>
+      <input id="title-input" type="text" placeholder="Label (optional)">
+      <button type="submit" class="primary-btn">Add link</button>
+    </form>
+
+    <div class="manage-toolbar">
+      <span id="count-label"></span>
+      <button id="clear-all-btn" class="danger-link hidden">Delete all</button>
+    </div>
+
+    <ul id="link-list" class="link-list"></ul>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
