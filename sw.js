@@ -1,4 +1,4 @@
-const CACHE_NAME = 'art-link-rotator-v1';
+const CACHE_NAME = 'art-link-rotator-v2';
 const APP_SHELL = [
   './',
   './index.html',
@@ -26,8 +26,13 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  // Only manage the app shell; let previews of external (link) sites go straight to the network.
-  if (url.origin !== self.location.origin) return;
+  // Only manage the app shell. Previews of external (link) sites are a
+  // different origin, so they already go straight to the network — but our
+  // own /api/* endpoints are same-origin too, and must NOT be cached this
+  // way (indefinitely, cache-first) or preview/thumbnail lookups could keep
+  // serving stale results forever. Let those go straight to the network as
+  // well; the API's own Cache-Control header governs normal HTTP caching.
+  if (url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
 
   event.respondWith(
     caches.match(event.request).then((cached) => {

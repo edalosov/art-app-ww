@@ -336,7 +336,11 @@ function loadThumbnail(link, imgEl) {
     else imgEl.classList.add('thumb-empty');
     return;
   }
-  fetch('/api/preview?url=' + encodeURIComponent(link.url))
+  // &thumbnail=1: for pages with no og:image (e.g. a raw generative-art file
+  // that's just a script), ask the server to fall back to a rendered
+  // screenshot instead — worth the extra wait here since this only loads
+  // once per link and gets cached, unlike the Link tab's live preview.
+  fetch('/api/preview?thumbnail=1&url=' + encodeURIComponent(link.url))
     .then((res) => (res.ok ? res.json() : null))
     .then((data) => {
       const image = (data && data.image) || null;

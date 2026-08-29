@@ -10,6 +10,11 @@ const net = require('net');
 const MAX_REDIRECTS = 3;
 const FETCH_TIMEOUT_MS = 8000;
 const MAX_HTML_BYTES = 300000;
+// Screenshot rendering (headless browser on microlink's end) is inherently
+// slower than a metadata scrape, so give it real room — but keep it well
+// under vercel.json's maxDuration for this function so a slow render times
+// out cleanly instead of the whole request getting killed mid-flight.
+const SCREENSHOT_TIMEOUT_MS = 18000;
 const BLOCKED_HOSTNAMES = new Set(['localhost', '0.0.0.0']);
 
 module.exports = async (req, res) => {
@@ -18,15 +23,45 @@ module.exports = async (req, res) => {
     res.status(400).json({ error: 'Missing url parameter' });
     return;
   }
+  // Manage-table thumbnails opt into a slower, heavier fallback (a rendered
+  // screenshot) for pages with no og:image at all — e.g. a raw generative-art
+  // file, which is just a script with nothing to statically scrape. The Link
+  // tab's big preview does NOT pass this: it prefers showing that kind of
+  // page live in an iframe instead of a static still.
+  const wantsScreenshotFallback = req.query.thumbnail === '1';
 
   try {
     const result = await fetchPreviewMeta(target);
+    if (!result.image && wantsScreenshotFallback) {
+      result.image = await fetchScreenshotUrl(target);
+    }
     res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
     res.status(200).json(result);
   } catch (e) {
     res.status(502).json({ error: 'Could not load preview', detail: String((e && e.message) || e) });
   }
 };
+
+// Renders the page in a real (headless) browser and returns a hosted
+// screenshot URL — via microlink.io's public API, so we don't have to run
+// our own headless-Chromium in this serverless function. Best-effort: any
+// failure just means no thumbnail image, never breaks the request.
+async function fetchScreenshotUrl(targetUrl) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), SCREENSHOT_TIMEOUT_MS);
+  try {
+    const api = `https://api.microlink.io/?url=${encodeURIComponent(targetUrl)}&screenshot=true&meta=false`;
+    const response = await fetch(api, { signal: controller.signal });
+    if (!response.ok) return null;
+    const body = await response.json();
+    const url = body && body.status === 'success' && body.data && body.data.screenshot && body.data.screenshot.url;
+    return typeof url === 'string' ? url : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 async function fetchPreviewMeta(startUrl) {
   let current = parseHttpUrl(startUrl);

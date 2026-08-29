@@ -15,11 +15,15 @@ small in-app preview, so you don't have to dig back through OpenSea each time.
   serverless function so it works even for sites like OpenSea that block
   being shown directly in an iframe. Falls back to an iframe, then an
   "Open ↗" button, if a site has no preview image.
-- **Manage tab** — a sortable table of every saved link with a small
-  thumbnail, its Title, Artist, and shown/new status. Add a Title and Artist
-  when saving a link (both optional); the Artist field autocompletes from
-  names you've already used. Filter the table by search text, artist, or
-  status.
+- **Manage tab** — a paginated table (10 per page) of every saved link with a
+  small thumbnail, its Title, Artist, and shown/new status. Add a Title and
+  Artist when saving a link (both optional); the Artist field autocompletes
+  from names you've already used. Filter the table by search text, artist,
+  or status. For links with no preview image at all (e.g. a raw generator
+  file, which is just a script, not a real webpage), the thumbnail falls
+  back to a rendered screenshot via [microlink.io](https://microlink.io)'s
+  free public API — the link's URL is sent to that third party to render it;
+  everything else in the app stays local/your-own-Firebase only.
 - **Sync tab (optional)** — its own tab, separate from Manage, since you'd
   normally only touch it once per device. Connect your computer and your
   iPhone with a shared sync code so a link added on one shows up on the
