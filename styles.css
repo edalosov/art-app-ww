@@ -442,25 +442,25 @@ main {
 }
 
 .link-table .col-thumb {
-  width: 144px;
+  width: 56px;
   padding-left: 12px;
   padding-right: 6px;
 }
 
 .thumb {
-  width: 144px;
+  width: 56px;
   /* Preview images are usually landscape (OpenSea's are ~1200x630), so shape
      the box to match instead of a square with big empty bars top/bottom. */
   aspect-ratio: 1200 / 630;
   height: auto;
-  border-radius: 8px;
+  border-radius: 5px;
   object-fit: contain;
   background: var(--card-2);
   display: block;
 }
 
 .thumb.thumb-empty {
-  background: var(--card-2) url("icons/icon-192.png") center/40% no-repeat;
+  background: var(--card-2);
   opacity: 0.5;
 }
 

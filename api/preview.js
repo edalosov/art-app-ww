@@ -50,7 +50,10 @@ async function fetchScreenshotUrl(targetUrl) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), SCREENSHOT_TIMEOUT_MS);
   try {
-    const api = `https://api.microlink.io/?url=${encodeURIComponent(targetUrl)}&screenshot=true&meta=false`;
+    // A small viewport keeps this fast (less for a headless browser to render,
+    // especially for canvas/WebGL content) and small (less to download) —
+    // this only ever backs a tiny table thumbnail, never a full-size preview.
+    const api = `https://api.microlink.io/?url=${encodeURIComponent(targetUrl)}&screenshot=true&meta=false&viewport.width=320&viewport.height=200`;
     const response = await fetch(api, { signal: controller.signal });
     if (!response.ok) return null;
     const body = await response.json();

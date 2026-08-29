@@ -335,6 +335,31 @@ function loadPreview(link) {
 // (e.g. each time a filter changes).
 const thumbnailCache = new Map();
 
+// Only fetch a thumbnail once its row actually scrolls near the viewport —
+// with up to 10 rows per page, there's no reason to fire off every fetch
+// (including possibly-slow screenshot renders) the instant the page renders.
+let thumbObserver = null;
+function observeThumbnail(link, imgEl) {
+  if (thumbnailCache.has(link.url)) {
+    loadThumbnail(link, imgEl); // already fetched earlier — show it instantly, no need to wait
+    return;
+  }
+  if (!thumbObserver) {
+    thumbObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          thumbObserver.unobserve(entry.target);
+          loadThumbnail(entry.target._link, entry.target);
+        });
+      },
+      { rootMargin: '200px' } // start loading a bit before it's actually visible
+    );
+  }
+  imgEl._link = link;
+  thumbObserver.observe(imgEl);
+}
+
 function loadThumbnail(link, imgEl) {
   if (thumbnailCache.has(link.url)) {
     const cached = thumbnailCache.get(link.url);
@@ -440,7 +465,7 @@ function renderManageList() {
     thumbImg.alt = '';
     thumbImg.loading = 'lazy';
     thumbTd.appendChild(thumbImg);
-    loadThumbnail(link, thumbImg);
+    observeThumbnail(link, thumbImg);
 
     const titleTd = document.createElement('td');
     titleTd.className = 'col-title';
