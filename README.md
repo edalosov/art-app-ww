@@ -19,11 +19,14 @@ small in-app preview, so you don't have to dig back through OpenSea each time.
   small thumbnail, its Title, Artist, and shown/new status. Add a Title and
   Artist when saving a link (both optional); the Artist field autocompletes
   from names you've already used. Filter the table by search text, artist,
-  or status. For links with no preview image at all (e.g. a raw generator
-  file, which is just a script, not a real webpage), the thumbnail falls
-  back to a rendered screenshot via [microlink.io](https://microlink.io)'s
-  free public API — the link's URL is sent to that third party to render it;
-  everything else in the app stays local/your-own-Firebase only.
+  or status. Tap the pencil icon on a row to edit its URL/Title/Artist in
+  place — its shown/new status and place in the rotation are kept, so
+  correcting a link doesn't reset anything. For links with no preview image
+  at all (e.g. a raw generator file, which is just a script, not a real
+  webpage), the thumbnail falls back to a rendered screenshot via
+  [microlink.io](https://microlink.io)'s free public API — the link's URL is
+  sent to that third party to render it; everything else in the app stays
+  local/your-own-Firebase only.
 - **Sync tab (optional)** — its own tab, separate from Manage, since you'd
   normally only touch it once per device. Connect your computer and your
   iPhone with a shared sync code so a link added on one shows up on the

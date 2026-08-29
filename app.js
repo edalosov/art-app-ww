@@ -201,6 +201,10 @@ const els = {
   previewFrame: document.getElementById('preview-frame'),
   previewImage: document.getElementById('preview-image'),
   addForm: document.getElementById('add-form'),
+  addSubmitBtn: document.getElementById('add-submit-btn'),
+  editBanner: document.getElementById('edit-banner'),
+  editBannerText: document.getElementById('edit-banner-text'),
+  cancelEditBtn: document.getElementById('cancel-edit-btn'),
   urlInput: document.getElementById('url-input'),
   titleInput: document.getElementById('title-input'),
   artistInput: document.getElementById('artist-input'),
@@ -286,7 +290,9 @@ function renderRotator() {
   loadPreview(link);
 }
 
-let lastPreviewLinkId = null;
+// Keyed by URL, not link id — a link can be edited to point somewhere new
+// without its id changing, and the preview needs to follow the URL.
+let lastPreviewUrl = null;
 let previewRequestId = 0;
 
 // Sites like OpenSea block being shown inside an <iframe> (X-Frame-Options), so
@@ -294,8 +300,8 @@ let previewRequestId = 0;
 // proxy first — the same trick Slack/Twitter "link unfurling" uses — and only
 // fall back to an iframe if that comes back empty.
 function loadPreview(link) {
-  if (lastPreviewLinkId === link.id) return;
-  lastPreviewLinkId = link.id;
+  if (lastPreviewUrl === link.url) return;
+  lastPreviewUrl = link.url;
   const requestId = ++previewRequestId;
 
   els.previewImage.classList.add('hidden');
@@ -397,6 +403,7 @@ function matchesFilters(link) {
 
 const PAGE_SIZE = 10;
 let managePage = 0;
+let editingLinkId = null;
 
 function renderManageList() {
   refreshArtistOptions();
@@ -462,11 +469,21 @@ function renderManageList() {
     linkTd.appendChild(a);
 
     const actionsTd = document.createElement('td');
+    actionsTd.className = 'col-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'edit-btn';
+    editBtn.textContent = '✎';
+    editBtn.setAttribute('aria-label', 'Edit link');
+    editBtn.addEventListener('click', () => startEditingLink(link));
+    actionsTd.appendChild(editBtn);
+
     const removeBtn = document.createElement('button');
     removeBtn.className = 'remove-btn';
     removeBtn.textContent = '✕';
     removeBtn.setAttribute('aria-label', 'Delete link');
     removeBtn.addEventListener('click', () => {
+      if (editingLinkId === link.id) exitEditMode();
       removeLink(link.id);
       renderAll();
     });
@@ -482,6 +499,32 @@ function renderAll() {
   renderManageList();
 }
 
+function startEditingLink(link) {
+  editingLinkId = link.id;
+  els.urlInput.value = link.url;
+  els.titleInput.value = link.title;
+  els.artistInput.value = link.artist;
+  els.editBannerText.textContent = `Editing "${displayName(link)}"`;
+  els.editBanner.classList.remove('hidden');
+  els.addSubmitBtn.textContent = 'Save changes';
+  switchView('manage');
+  els.addForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  els.urlInput.focus();
+}
+
+function exitEditMode() {
+  editingLinkId = null;
+  els.editBanner.classList.add('hidden');
+  els.addSubmitBtn.textContent = 'Add link';
+}
+
+els.cancelEditBtn.addEventListener('click', () => {
+  exitEditMode();
+  els.urlInput.value = '';
+  els.titleInput.value = '';
+  els.artistInput.value = '';
+});
+
 els.addForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const url = els.urlInput.value.trim();
@@ -492,12 +535,25 @@ els.addForm.addEventListener('submit', (e) => {
     alert('That doesn\'t look like a valid link.');
     return;
   }
-  const wasEmpty = state.links.length === 0;
-  addLink(url, els.titleInput.value, els.artistInput.value);
+
+  if (editingLinkId) {
+    const link = findLink(editingLinkId);
+    if (link) {
+      link.url = url;
+      link.title = els.titleInput.value.trim();
+      link.artist = els.artistInput.value.trim();
+      saveState();
+    }
+    exitEditMode();
+  } else {
+    const wasEmpty = state.links.length === 0;
+    addLink(url, els.titleInput.value, els.artistInput.value);
+    if (wasEmpty) pickNextLink();
+  }
+
   els.urlInput.value = '';
   els.titleInput.value = '';
   els.artistInput.value = '';
-  if (wasEmpty) pickNextLink();
   renderAll();
 });
 

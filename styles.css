@@ -343,6 +343,20 @@ main {
   color: var(--muted);
 }
 
+.edit-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid var(--accent-2);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
 .add-form-row {
   display: flex;
   gap: 8px;
@@ -491,13 +505,25 @@ main {
   color: var(--muted);
 }
 
+.link-table .col-actions {
+  white-space: nowrap;
+}
+
+.link-table .edit-btn,
 .link-table .remove-btn {
   background: none;
   border: none;
-  color: var(--danger);
   font-size: 16px;
   line-height: 1;
   padding: 4px 6px;
+}
+
+.link-table .edit-btn {
+  color: var(--accent-2);
+}
+
+.link-table .remove-btn {
+  color: var(--danger);
 }
 
 .pagination {

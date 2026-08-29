@@ -71,13 +71,17 @@
   <!-- MANAGE VIEW -->
   <section id="view-manage" class="view">
     <form id="add-form" class="add-form">
+      <p id="edit-banner" class="edit-banner hidden">
+        <span id="edit-banner-text"></span>
+        <button id="cancel-edit-btn" type="button" class="link-btn">Cancel</button>
+      </p>
       <input id="url-input" type="url" inputmode="url" placeholder="Paste OpenSea (or any) link…" required>
       <div class="add-form-row">
         <input id="title-input" type="text" placeholder="Title (optional)">
         <input id="artist-input" type="text" placeholder="Artist (optional)" list="artist-datalist" autocomplete="off">
         <datalist id="artist-datalist"></datalist>
       </div>
-      <button type="submit" class="primary-btn">Add link</button>
+      <button id="add-submit-btn" type="submit" class="primary-btn">Add link</button>
     </form>
 
     <div class="filter-row">
