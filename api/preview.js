@@ -41,8 +41,11 @@ async function fetchPreviewMeta(startUrl) {
         redirect: 'manual',
         signal: controller.signal,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; ArtLinkRotatorPreview/1.0)',
-          Accept: 'text/html',
+          // Identify as a known link-preview bot (same one Facebook/Slack/iMessage
+          // use for "unfurling") rather than a made-up name — sites that block
+          // unrecognized bots commonly allowlist this one for exactly this purpose.
+          'User-Agent': 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
+          Accept: 'text/html,application/xhtml+xml,*/*;q=0.8',
         },
       });
     } finally {
