@@ -452,7 +452,10 @@ main {
   aspect-ratio: 1 / 1;
   height: auto;
   border-radius: 6px;
-  object-fit: contain;
+  /* Unlike the big Link-tab preview, this thumbnail is just for quick
+     identification — fill the square completely (cropping the edges of a
+     landscape image) rather than leaving empty bars around it. */
+  object-fit: cover;
   background: var(--card-2);
   display: block;
 }
